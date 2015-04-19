@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>d3 Map</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'> 
+    <!-- loading cutomised d3 library -->
+    <script type="text/javascript" src="d3folder.js/d3.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="slider.js"></script> 
+    <link rel="stylesheet" href="/resources/demos/style.css">
+   
+  </head>
+  <body>
+    <div class="container">
+      <div id="map"></div>
+      
+      <ul id="breadcrumbs-one">
+        <li><a id="d12">DEC/12</a></li>
+        <div class="line"></div>
+        <li><a id="m13">MAR/13</a></li>
+        <div class="line"></div>
+        <li><a id="j13">JUN/13</a></li>
+        <div class="line"></div>
+        <li><a id="s13">SEP/13</a></li>
+        <div class="line"></div>
+        <li><a id="d13">DEC/13</a></li>
+        <div class="line"></div>
+        <li><a id="m14">MAR/14</a></li>
+        <div class="line"></div>
+        <li><a id="j14">JUN/14</a></li>
+        <div class="line"></div>
+        <li><a id="s14">SEP/14</a></li>
+        <div class="line"></div>
+        <li><a id="d14">DEC/14</a></li>
+      </ul>
+
+      <!-- <div id="slider"></div> -->
+    </div>
+    <script>
+      var w = 1300;
+      var h = 900;
+
+      // Parse the date
+      // var parseDate = d3.time.format("%m-%d-%Y").parse;
+
+      //Define map projection to account for 2D
+      var projection = d3.geo.albersUsa()
+            .translate([w/2, h/2])
+            .scale([1300]);
+
+      //Define path generator
+      var path = d3.geo.path()
+            .projection(projection);
+
+      var color = d3.scale.quantize()
+            .range(["rgb(237,248,233)","rgb(186,228,179)","rgb(116,196,118)","rgb(49,163,84)","rgb(0,109,44)"]);
+                
+      //Create SVG element
+      var svg = d3.select("#map")
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h);
+
+      var divs = $("div.tooltips");
+
+      if (divs.length === 0) {
+        var div = d3.select("#map")
+            .append("div")
+            .attr("class", "tooltips")
+            .style("opacity", 0);
+      } else {
+          var div = d3.select("div.tooltips");
+      }
+
+      var legend = $("div.legend");
+
+      var legend = d3.select('#map')
+            .append('div')
+            .attr("class", "legend");
+
+      var lables = $("div.lables");
+
+      var lables = d3.select('#map')
+            .append('div')
+            .attr("class", "lables");
+
+      var g = svg.append("g");
+
+      d3.csv("productivity_us2004.csv", function(data) {
+        //Set input domain for color scale
+        color.domain([
+          d3.min(data, function(d) { return d.value; }), 
+          d3.max(data, function(d) { return d.value; })
+        ]);
+
+
+        //Load in GeoJSON data
+        d3.json("us-states.json", function(json) {
+
+          //Merge the ag. data and GeoJSON
+            //Loop through once for each ag. data value
+            for (var i = 0; i < data.length; i++) {
+          
+              //Grab state name
+              var dataState = data[i].state;
+              
+              //Grab data value, and convert from string to float
+              var dataValue = parseFloat(data[i].value);
+          
+              //Find the corresponding state inside the GeoJSON
+              for (var j = 0; j < json.features.length; j++) {
+              
+                var jsonState = json.features[j].properties.name;
+          
+                if (dataState == jsonState) {
+              
+                  //Copy the data value into the JSON
+                  json.features[j].properties.value = dataValue;
+                  
+                  //Stop looking through the JSON
+                  break;
+                  
+                }
+              }   
+            }
+
+            svg.selectAll("path")
+               .data(json.features)
+               .enter()
+               .append("path")
+               .attr("d", path)
+               .style("fill", function(d) {
+                  //Get data value
+                  var value = d.properties.value;
+                  
+                  if (value) {
+                    //If value exists…
+                    return color(value);
+                  } else {
+                    //If value is undefined…
+                    return "#ccc";
+                  }
+            });
+        
+        // g.append('g')
+        //     .attr("id", "states")
+        //     .selectAll("path")
+        //     .data(json.features)
+        //     .enter()
+        //     .append('g')
+        //     .attr("class","state-path")
+        //     .attr("state", function(d) {
+        //         return d.state;
+        //     });
+            
+        // svg.selectAll(".state-path")
+        //     .append("path")
+        //     .attr("d", path)
+        //     .style("fill", function(d) {
+        //         //Get data value
+        //         var value = d.properties.value;
+                
+        //         if (value) {
+        //           //If value exists…
+        //           return color(value);
+        //         } else {
+        //           //If value is undefined…
+        //           return "#ccc";
+        //         }
+        //     .style("stroke-width", "1.5")
+        //     .style("stroke", "white")
+        //     // .attr("class", "state")
+        //     .on('click', clicked)
+        //     .on('mousemove', mousemove)
+        //     .on('mouseout', mouseout);
+             
+          
+            // svg.append("rect")
+            //     .attr("fill", "none")
+            //     .attr("width", w)
+            //     .attr("height", h)
+            //     // .style('z-index', -1001)
+            //     .style('stroke', '#eee');
+
+        });
+      });
+
+      function clicked(d){
+        d3.select(this).style("fill", "white")
+
+      }
+
+      function mousemove(d){
+
+        var state = $(this).attr("state");
+          div.transition().duration(200).style("opacity", 1);
+          div.html(d.properties.name + "<br/>" + d.id + "<br/>" +
+          "STATE")
+                  .style("left", (d3.event.pageX - 110) + "px")
+                  .style("top", (d3.event.pageY - 1030) + "px");
+
+        d3.select(this).style("fill", "white");
+      }
+
+      function mouseout(d){
+        div.transition().duration(500).style("opacity", 0);
+
+        d3.select(this).style('fill', '#ade1eb');
+      }
+
+      
+
+
+
+
+    </script>
+    
+
+
+  </body>
+</html>
