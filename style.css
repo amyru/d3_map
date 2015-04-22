@@ -2,6 +2,8 @@
   margin-left: 50px;
 }
 
+/*nav bar*/
+
 ul{
   margin: 0;
   padding: 0;
@@ -52,10 +54,9 @@ ul{
 }
 
 #breadcrumbs-one a:hover{
-  background: url('hover.png') no-repeat;
+  background-color: #9494FF;
   background-size: 100%;
   color: #fff;
-  height: 80px;
 }
 
 #breadcrumbs-one:hover{
@@ -70,13 +71,14 @@ ul{
   width: 1300px;
   height: 900px;
   background-color: #EAEAFF;
+  margin-left: 50px;
 }
 
-.ui-slider-horizontal .ui-slider-handle{
-  /*background: #eee;*/
+/*.ui-slider-horizontal .ui-slider-handle{
+  background: #eee;
   background: url('hover.png') no-repeat !important;
-  width: 50px;
-}
+  */
+/*}*/
 
 /* tooltip */
 
