@@ -19,7 +19,7 @@ ul{
 }
 
 #breadcrumbs-one{
-  position:absolute;
+  position:relative;
   /*background: #eee;*/
   border-width: 1px;
   border-style: solid;
